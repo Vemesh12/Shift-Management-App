@@ -1,0 +1,71 @@
+<div class="calendar-container">
+  <div class="calendar-header">
+    <h2 class="calendar-title">{{ getMonthYearString() }}</h2>
+    
+    <div class="calendar-controls">
+      <button mat-icon-button (click)="previousMonth()" matTooltip="Previous Month">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      
+      
+      <button mat-icon-button (click)="nextMonth()" matTooltip="Next Month">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && calendarDays.length > 0">
+    <!-- Weekday Headers -->
+    <div class="calendar-grid">
+      <div class="weekday-header" *ngFor="let day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']">
+        {{ day }}
+      </div>
+      
+      <!-- Calendar Days -->
+      <div 
+        *ngFor="let day of calendarDays" 
+        class="calendar-day"
+        [ngClass]="getDayClass(day)"
+        (click)="day.shifts.length > 0 ? editShift(day.shifts[0]) : null">
+        
+        <div class="date-number">{{ day.date.getDate() }}</div>
+        
+        <div class="day-content">
+          <!-- Blocked Day Indicator -->
+          <div *ngIf="day.isBlocked" class="blocked-indicator">
+            BLOCKED
+          </div>
+          
+          <!-- Shift Items -->
+          <div 
+            *ngFor="let shift of day.shifts" 
+            class="shift-item"
+            (click)="editShift(shift); $event.stopPropagation()">
+            {{ shift.fromTime }} - {{ shift.toTime }}
+          </div>
+        </div>
+        
+        <!-- Day Actions (Edit/Delete) -->
+        <div class="day-actions">
+          
+          <button 
+            *ngIf="day.isBlocked" 
+            mat-icon-button 
+            class="delete-btn"
+            (click)="deleteBlockedTime(day.blockedTimes[0]._id || ''); $event.stopPropagation()"
+            matTooltip="Unblock Day">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && calendarDays.length === 0" class="error-message">
+    No calendar data available.
+  </div>
+</div>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Management App - Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.block {
+            background-color: #f44336;
+        }
+        button.block:hover {
+            background-color: #da190b;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #ddd;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .day-header {
+            background-color: #f5f5f5;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .day {
+            background-color: white;
+            min-height: 100px;
+            padding: 8px;
+            border: 1px solid #eee;
+        }
+        .day.today {
+            background-color: #e3f2fd;
+        }
+        .shift {
+            background-color: #4caf50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 2px 0;
+            font-size: 12px;
+        }
+        .blocked {
+            background-color: #f44336;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 2px 0;
+            font-size: 12px;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕒 Shift Management App</h1>
+        
+        <div id="message"></div>
+        
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="fromTime">From Time:</label>
+            <select id="fromTime" required>
+                <option value="">Select time</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="toTime">To Time:</label>
+            <select id="toTime" required>
+                <option value="">Select time</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="reason">Reason (for blocked time):</label>
+            <input type="text" id="reason" placeholder="Optional reason">
+        </div>
+        
+        <button onclick="addShift()">Add Shift</button>
+        <button class="block" onclick="blockTime()">Block Time</button>
+        <button onclick="loadCalendar()">Refresh Calendar</button>
+        
+        <div id="calendar" class="calendar"></div>
+    </div>
+
+    <script>
+        let userId = '';
+        
+        // Generate time options
+        function generateTimeOptions() {
+            const fromSelect = document.getElementById('fromTime');
+            const toSelect = document.getElementById('toTime');
+            
+            for (let hour = 0; hour < 24; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                    const option1 = new Option(timeString, timeString);
+                    const option2 = new Option(timeString, timeString);
+                    fromSelect.add(option1);
+                    toSelect.add(option2);
+                }
+            }
+        }
+        
+        // Set today's date
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+        }
+        
+        // Show message
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Initialize user
+        async function initializeUser() {
+            try {
+                const response = await fetch('http://localhost:3000/api/users', {
+                    headers: {
+                        'Authorization': 'Bearer mytoken',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const users = await response.json();
+                
+                if (users.length > 0) {
+                    userId = users[0]._id;
+                } else {
+                    // Create a default user
+                    const createResponse = await fetch('http://localhost:3000/api/users', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer mytoken',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: 'Vemesh Bypureddi',
+                            email: 'vemeshbypureddi1204@gmail.com'
+                        })
+                    });
+                    
+                    const user = await createResponse.json();
+                    userId = user._id;
+                }
+                
+                showMessage('User initialized successfully!');
+                loadCalendar();
+            } catch (error) {
+                showMessage('Error initializing user: ' + error.message, 'error');
+            }
+        }
+        
+        // Add shift
+        async function addShift() {
+            const date = document.getElementById('date').value;
+            const fromTime = document.getElementById('fromTime').value;
+            const toTime = document.getElementById('toTime').value;
+            
+            if (!date || !fromTime || !toTime) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/shifts', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer mytoken',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        date: date,
+                        fromTime: fromTime,
+                        toTime: toTime
+                    })
+                });
+                
+                if (response.ok) {
+                    showMessage('Shift added successfully!');
+                    loadCalendar();
+                } else {
+                    throw new Error('Failed to add shift');
+                }
+            } catch (error) {
+                showMessage('Error adding shift: ' + error.message, 'error');
+            }
+        }
+        
+        // Block time
+        async function blockTime() {
+            const date = document.getElementById('date').value;
+            const fromTime = document.getElementById('fromTime').value;
+            const toTime = document.getElementById('toTime').value;
+            const reason = document.getElementById('reason').value;
+            
+            if (!date || !fromTime || !toTime) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/blocked', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer mytoken',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        date: date,
+                        fromTime: fromTime,
+                        toTime: toTime,
+                        reason: reason
+                    })
+                });
+                
+                if (response.ok) {
+                    showMessage('Time blocked successfully!');
+                    loadCalendar();
+                } else {
+                    throw new Error('Failed to block time');
+                }
+            } catch (error) {
+                showMessage('Error blocking time: ' + error.message, 'error');
+            }
+        }
+        
+        // Load calendar
+        async function loadCalendar() {
+            try {
+                const response = await fetch(`http://localhost:3000/api/calendar/${userId}`, {
+                    headers: {
+                        'Authorization': 'Bearer mytoken',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                displayCalendar(data.shifts, data.blockedTimes);
+            } catch (error) {
+                showMessage('Error loading calendar: ' + error.message, 'error');
+            }
+        }
+        
+        // Display calendar
+        function displayCalendar(shifts, blockedTimes) {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+            
+            // Add day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Get current month
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            
+            // Get first day of month
+            const firstDay = new Date(year, month, 1);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            // Generate 42 days (6 weeks)
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day';
+                
+                if (date.toDateString() === today.toDateString()) {
+                    dayDiv.classList.add('today');
+                }
+                
+                dayDiv.innerHTML = `<strong>${date.getDate()}</strong>`;
+                
+                // Add shifts and blocked times for this date
+                const dayShifts = shifts.filter(shift => 
+                    new Date(shift.date).toDateString() === date.toDateString()
+                );
+                
+                const dayBlocked = blockedTimes.filter(blocked => 
+                    new Date(blocked.date).toDateString() === date.toDateString()
+                );
+                
+                dayShifts.forEach(shift => {
+                    const shiftDiv = document.createElement('div');
+                    shiftDiv.className = 'shift';
+                    shiftDiv.textContent = `${shift.fromTime}-${shift.toTime}`;
+                    dayDiv.appendChild(shiftDiv);
+                });
+                
+                dayBlocked.forEach(blocked => {
+                    const blockedDiv = document.createElement('div');
+                    blockedDiv.className = 'blocked';
+                    blockedDiv.textContent = `${blocked.fromTime}-${blocked.toTime}`;
+                    dayDiv.appendChild(blockedDiv);
+                });
+                
+                calendar.appendChild(dayDiv);
+            }
+        }
+        
+        // Initialize the app
+        window.onload = function() {
+            generateTimeOptions();
+            setTodayDate();
+            initializeUser();
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+

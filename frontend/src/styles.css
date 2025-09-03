@@ -1,0 +1,68 @@
+/* You can add global styles to this file, and also import other style files */
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.calendar-container {
+  padding: 20px;
+}
+
+.shift-slot {
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 2px;
+  font-size: 12px;
+}
+
+.blocked-slot {
+  background-color: #f44336;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 2px;
+  font-size: 12px;
+}
+
+.calendar-day {
+  border: 1px solid #ddd;
+  min-height: 100px;
+  padding: 8px;
+  position: relative;
+}
+
+.calendar-day.today {
+  background-color: #e3f2fd;
+}
+
+.calendar-day.has-shifts {
+  background-color: #e8f5e8;
+}
+
+.calendar-day.has-blocked {
+  background-color: #ffebee;
+}
+
+.time-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px 0;
+}
+
+.time-slot .time {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.time-slot .actions {
+  display: flex;
+  gap: 4px;
+}
+
+.time-slot .actions button {
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 12px;
+}

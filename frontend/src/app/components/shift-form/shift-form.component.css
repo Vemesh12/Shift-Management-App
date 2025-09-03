@@ -1,0 +1,176 @@
+/* Add custom styles for error snackbar */
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar .mat-simple-snackbar-action {
+  color: white !important;
+}
+
+/* Form styling */
+.form-card {
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.form-row {
+  margin-bottom: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 48%;
+  margin-right: 2%;
+}
+
+.half-width:last-child {
+  margin-right: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.left-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.right-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Week Options Styling */
+.week-options {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.week-options h4 {
+  margin: 0 0 8px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+.info-text {
+  margin: 0 0 16px 0;
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.week-button {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 14px;
+}
+
+/* Existing Shifts Styling */
+.existing-shifts {
+  margin-top: 30px;
+  border-top: 1px solid #e9ecef;
+  padding-top: 20px;
+}
+
+.existing-shifts h4 {
+  margin: 0 0 16px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+.shifts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shift-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.shift-item:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.shift-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shift-date {
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+}
+
+.shift-time {
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.shift-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.shift-actions button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.shift-actions mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .half-width {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 16px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .left-actions,
+  .right-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .shift-item {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .shift-actions {
+    justify-content: center;
+  }
+}

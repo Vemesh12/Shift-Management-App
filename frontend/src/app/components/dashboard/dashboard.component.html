@@ -1,0 +1,66 @@
+<div class="dashboard-container">
+  <div class="welcome-section" *ngIf="currentUser">
+    <h2>Welcome, {{ currentUser.name }}!</h2>
+    <p>Manage your shifts and blocked time slots</p>
+  </div>
+
+  <div class="main-content">
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+      <app-calendar-view 
+        [userId]="userId"
+        (shiftEditRequest)="onShiftEditRequest($event)">
+      </app-calendar-view>
+    </div>
+
+    <!-- Action Buttons Section -->
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="openShiftModal()" class="action-button">
+        <mat-icon>add</mat-icon>
+        Add Shift Timings
+      </button>
+      
+      <button mat-raised-button color="warn" (click)="openBlockModal()" class="action-button">
+        <mat-icon>block</mat-icon>
+        Block Time
+      </button>
+    </div>
+  </div>
+
+  <!-- Shift Form Modal -->
+  <div class="modal-overlay" *ngIf="showShiftModal" (click)="closeShiftModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingShift ? 'Edit Shift' : 'Add Shift' }}</h3>
+        <button mat-icon-button (click)="closeShiftModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <app-shift-form 
+          [userId]="userId"
+          [editingShift]="editingShift"
+          (editComplete)="onShiftEditComplete()">
+        </app-shift-form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block Form Modal -->
+  <div class="modal-overlay" *ngIf="showBlockModal" (click)="closeBlockModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Block Time</h3>
+        <button mat-icon-button (click)="closeBlockModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <app-block-form 
+          [userId]="userId"
+          (blockComplete)="onBlockComplete()">
+        </app-block-form>
+      </div>
+    </div>
+  </div>
+</div>

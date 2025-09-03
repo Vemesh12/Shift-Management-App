@@ -1,0 +1,36 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>Block Day</mat-card-title>
+    <mat-card-subtitle>Mark entire day as unavailable</mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <form [formGroup]="blockForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date" required>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="blockForm.get('date')?.hasError('required')">
+            Date is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reason (Optional)</mat-label>
+          <input matInput formControlName="reason" placeholder="e.g., Holiday, Meeting, Personal day">
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button mat-raised-button color="warn" type="submit" [disabled]="!blockForm.valid || isSubmitting">
+          <mat-icon>block</mat-icon>
+          {{ isSubmitting ? 'Blocking...' : 'Block Day' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

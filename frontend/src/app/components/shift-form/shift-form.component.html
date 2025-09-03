@@ -1,0 +1,84 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>{{ isEditMode ? 'Edit Shift' : 'Add Shift' }}</mat-card-title>
+    <mat-card-subtitle>{{ isEditMode ? 'Modify existing shift' : 'Schedule work shifts on available days' }}</mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <form [formGroup]="shiftForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date" required>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="shiftForm.get('date')?.hasError('required')">
+            Date is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>From Time</mat-label>
+          <mat-select formControlName="fromTime" required>
+            <mat-option *ngFor="let time of generateTimeOptions()" [value]="time">
+              {{ time }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="shiftForm.get('fromTime')?.hasError('required')">
+            From time is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>To Time</mat-label>
+          <mat-select formControlName="toTime" required>
+            <mat-option *ngFor="let time of generateTimeOptions()" [value]="time">
+              {{ time }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="shiftForm.get('toTime')?.hasError('required')">
+            To time is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Week Shift Options -->
+      <div class="week-options" *ngIf="!isEditMode">
+        <h4>📅 Weekly Shift Options</h4>
+        <p class="info-text">Add the same shift time to all weekdays (Monday-Friday) starting from the selected date</p>
+        <button 
+          mat-raised-button 
+          color="accent" 
+          type="button" 
+          (click)="addShiftForWeek()" 
+          [disabled]="!shiftForm.valid || isSubmitting"
+          class="week-button">
+          <mat-icon>weekend</mat-icon>
+          {{ isSubmitting ? 'Adding...' : 'Add Shift for Week (Mon-Fri)' }}
+        </button>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <div class="left-actions" *ngIf="isEditMode">
+          <button mat-button type="button" (click)="cancelEdit()">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+        </div>
+        
+        <div class="right-actions">
+            <button mat-stroked-button color="accent" type="button" (click)="softDeleteShift()" *ngIf="isEditMode">
+              <mat-icon>delete</mat-icon> Delete
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!shiftForm.valid || isSubmitting">
+              <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+              {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Shift' : 'Add Shift') }}
+            </button>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
