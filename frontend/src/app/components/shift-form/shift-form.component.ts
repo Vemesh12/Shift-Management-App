@@ -41,17 +41,10 @@ export class ShiftFormComponent implements OnInit, OnChanges {
         date: new Date()
       });
     }
-    
-    // Load existing shifts
-    this.loadShifts();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['userId'] && changes['userId'].currentValue) {
-      this.loadBlockedTimes();
-      this.loadShifts();
-    }
-    
+    // Only update form when editingShift changes, do not reload data
     if (changes['editingShift']) {
       if (changes['editingShift'].currentValue) {
         // Start editing mode - this will set the correct date
